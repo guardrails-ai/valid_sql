@@ -1,31 +1,119 @@
-# Guardrails Validator Template
-Template repository that hosts a sample validator to be used within GuardrailsHub.
+# Overview
 
-## How to create a Guardrails Validator
-- On the top right of the page, click "Use this template", select "create a new repository"  and set a name for the package.
-- Modify the class in [validator/main.py](validator/main.py) with source code for the new validator
-    - Make sure that the class still inherits from `Validator` and has the `register_validator` annotation.
-    - Set the `name` in the `register_validator` to the name of the repo and set the appropriate data type.
-- Change [validator/__init__.py](validator/__init__.py) to your new Validator classname instead of RegexMatch
-- Locally test the validator with the test instructions below
+| Developed by | Guardrails AI |
+| --- | --- |
+| Date of development | Feb 15, 2024 |
+| Validator type | Format |
+| Blog |  |
+| License | Apache 2 |
+| Input/Output | Output |
 
-* Note: This package uses a pyproject.toml file, on first run, run `pip install .` to pull down and install all dependencies
+# Description
 
-### Testing and using your validator
-- Open [test/test-validator.py](test/test-validator.py) to test your new validator 
-- Import your new validator and modify `ValidatorTestObject` accordingly
-- Modify the TEST_OUTPUT and TEST_FAIL_OUTPUT accordingly
-- Run `python test/test-validator.py` via terminal, make sure the returned output reflects the input object 
-- Write advanced tests for failures, etc.
+This validator checks if a string follows valid SQL code. In order to do this, it expects either a `conn` string or a `schema` file. It checks the validity of generated SQL by performing the following steps:
 
-## Upload your validator to the validator hub
-- Update the [pyproject.toml](pyproject.toml) file and make necessary changes as follows:
-    - Update the `name` field to the name of your validator
-    - Update the `description` field to a short description of your validator
-    - Update the `authors` field to your name and email
-    - Add/update the `dependencies` field to include all dependencies your validator needs.
-- If there are are any post-installation steps such as downloading tokenizers, logging into huggingface etc., update the [post-install.py](validator/post-install.py) file accordingly.
-- You can add additional files to the [validator](validator) directory, but don't rename any existing files/directories.
-    - e.g. Add any environment variables (without the values, just the keys) to the [.env](.env) file.
-- Ensure that there are no other dependencies or any additional steps required to run your validator.
-- Fill out this [form](https://forms.gle/nmxyKwzjypaqvWxbA) to get your new validator onboarded!
+1. If given a connection string, it connects to the DB instance.
+2. Alternatively, if given a schema, it creates a local instance of the database based on the schema and connects to the local DB.
+3. If neither a connection string nor schema is provided, then SQL validation is performed using `sqlvalidator` package.
+4. In order to validate any generated LLM string representing a SQL statement, that statement is executed against the connected DB. If the statement runs without raising an exception, then the validator passes.
+
+# Installation
+
+```bash
+$ guardrails hub install hub://guardrails/bug-free-sql
+```
+
+# Usage Examples
+
+## Validating string output via Python
+
+In this example, we validate a generated SQL code by providing it with a schema file.
+
+```python
+# Import Guard and Validator
+from guardrails.hub import BugFreeSQL
+from guardrails import Guard
+
+with open("schema.sql", "w") as f:
+		f.write("""
+CREATE TABLE IF NOT EXISTS employees (
+    id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+"""
+		)
+
+# Initialize Validator
+val = BugFreeSQL(
+		schema_file="schema.sql",
+    conn="sqlite://",
+)
+
+# Setup Guard
+guard = Guard.from_string(
+    validators=[val, ...],
+)
+
+guard.parse("select name from employees;")  # Validator passes
+guard.parse("select name, fro employees")  # Validator fails
+```
+
+## Validating JSON output via Python
+
+In this example, we apply the validator to a string field of a JSON object.
+
+```python
+# Import Guard and Validator
+from pydantic import BaseModel
+from guardrails.hub import BugFreeSQL
+from guardrails import Guard
+
+with open("schema.sql", "w") as f:
+		f.write("""
+CREATE TABLE IF NOT EXISTS employees (
+    id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+"""
+		)
+
+# Initialize Validator
+val = BugFreeSQL(
+		schema_file="schema.sql",
+    conn="sqlite://",
+)
+
+# Create Pydantic BaseModel
+class SQLCode(BaseModel):
+		code: str = Field(
+				description="SQL code for query", validators=[val]
+		)
+
+# Create a Guard to check for valid Pydantic output
+guard = Guard.from_pydantic(output_class=SQLCode)
+
+# Run LLM output generating JSON through guard
+guard.parse("""
+{
+		"code": "select name from employees;"
+}
+""")
+```
+
+## Validating string output via RAIL
+
+tbd
+
+## Validating JSON output via RAIL
+
+tbd
+
+# API Reference
+
+`__init__`
+
+- `conn`: The connection string to connect to a sql schema. E.g. `sqlite://`
+- `schema`: The `.sql` file representing the DB schema.
+- `on_fail`: The policy to enact when a validator fails.
