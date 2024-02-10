@@ -22,9 +22,10 @@ class ValidSQL(Validator):
 
     | Property                      | Description                       |
     | ----------------------------- | --------------------------------- |
-    | Name for `format` attribute   | `bug-free-sql`                    |
+    | Name for `format` attribute   | `valid-sql`                       |
     | Supported data types          | `string`                          |
     | Programmatic fix              | None                              |
+
     """
 
     def __init__(
