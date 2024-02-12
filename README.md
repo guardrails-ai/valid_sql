@@ -35,14 +35,14 @@ from guardrails.hub import ValidSQL
 from guardrails import Guard
 
 with open("schema.sql", "w") as f:
-		f.write("""
+    f.write("""
 CREATE TABLE IF NOT EXISTS employees (
     id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
 """
-		)
+    )
 
 # Initialize Validator
 val = ValidSQL(
@@ -70,14 +70,14 @@ from guardrails.hub import ValidSQL
 from guardrails import Guard
 
 with open("schema.sql", "w") as f:
-		f.write("""
+    f.write("""
 CREATE TABLE IF NOT EXISTS employees (
     id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
 """
-		)
+    )
 
 # Initialize Validator
 val = ValidSQL(
