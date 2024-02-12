@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS employees (
 
 # Initialize Validator
 val = ValidSQL(
-		schema_file="schema.sql",
+    schema_file="schema.sql",
     conn="sqlite://",
 )
 
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS employees (
 
 # Initialize Validator
 val = ValidSQL(
-		schema_file="schema.sql",
+    schema_file="schema.sql",
     conn="sqlite://",
 )
 
