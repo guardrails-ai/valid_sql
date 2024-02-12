@@ -87,9 +87,9 @@ val = ValidSQL(
 
 # Create Pydantic BaseModel
 class SQLCode(BaseModel):
-		code: str = Field(
-				description="SQL code for query", validators=[val]
-		)
+    code: str = Field(
+        description="SQL code for query", validators=[val]
+    )
 
 # Create a Guard to check for valid Pydantic output
 guard = Guard.from_pydantic(output_class=SQLCode)
@@ -97,7 +97,7 @@ guard = Guard.from_pydantic(output_class=SQLCode)
 # Run LLM output generating JSON through guard
 guard.parse("""
 {
-		"code": "select name from employees;"
+    "code": "select name from employees;"
 }
 """)
 ```
