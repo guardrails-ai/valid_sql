@@ -20,7 +20,7 @@ This validator checks if a string follows valid SQL code. In order to do this, i
 # Installation
 
 ```bash
-$ guardrails hub install hub://guardrails/bug-free-sql
+$ guardrails hub install hub://guardrails/valid_sql
 ```
 
 # Usage Examples
@@ -31,7 +31,7 @@ In this example, we validate a generated SQL code by providing it with a schema 
 
 ```python
 # Import Guard and Validator
-from guardrails.hub import BugFreeSQL
+from guardrails.hub import ValidSQL
 from guardrails import Guard
 
 with open("schema.sql", "w") as f:
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS employees (
 		)
 
 # Initialize Validator
-val = BugFreeSQL(
+val = ValidSQL(
 		schema_file="schema.sql",
     conn="sqlite://",
 )
@@ -66,7 +66,7 @@ In this example, we apply the validator to a string field of a JSON object.
 ```python
 # Import Guard and Validator
 from pydantic import BaseModel
-from guardrails.hub import BugFreeSQL
+from guardrails.hub import ValidSQL
 from guardrails import Guard
 
 with open("schema.sql", "w") as f:
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS employees (
 		)
 
 # Initialize Validator
-val = BugFreeSQL(
+val = ValidSQL(
 		schema_file="schema.sql",
     conn="sqlite://",
 )
