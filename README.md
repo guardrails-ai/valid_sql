@@ -1,4 +1,4 @@
-# Overview
+## Overview
 
 | Developed by | Guardrails AI |
 | --- | --- |
@@ -8,7 +8,7 @@
 | License | Apache 2 |
 | Input/Output | Output |
 
-# Description
+## Description
 
 This validator checks if a string follows valid SQL code. In order to do this, it expects either a `conn` string or a `schema` file. It checks the validity of generated SQL by performing the following steps:
 
@@ -17,15 +17,15 @@ This validator checks if a string follows valid SQL code. In order to do this, i
 3. If neither a connection string nor schema is provided, then SQL validation is performed using `sqlvalidator` package.
 4. In order to validate any generated LLM string representing a SQL statement, that statement is executed against the connected DB. If the statement runs without raising an exception, then the validator passes.
 
-# Installation
+## Installation
 
 ```bash
 $ guardrails hub install hub://guardrails/valid_sql
 ```
 
-# Usage Examples
+## Usage Examples
 
-## Validating string output via Python
+### Validating string output via Python
 
 In this example, we validate a generated SQL code by providing it with a schema file.
 
@@ -59,7 +59,7 @@ guard.parse("select name from employees;")  # Validator passes
 guard.parse("select name, fro employees")  # Validator fails
 ```
 
-## Validating JSON output via Python
+### Validating JSON output via Python
 
 In this example, we apply the validator to a string field of a JSON object.
 
@@ -103,10 +103,36 @@ guard.parse("""
 ```
 
 
-# API Reference
+## API Reference
 
-`__init__`
+**`__init__(self, conn=None, schema=None, on_fail="noop")`**
+<ul>
 
-- `conn`: The connection string to connect to a sql schema. E.g. `sqlite://`
-- `schema`: The `.sql` file representing the DB schema.
-- `on_fail`: The policy to enact when a validator fails.
+Initializes a new instance of the Validator class.
+
+**Parameters:**
+
+- **`conn`** _(str)_: The connection string to connect to a sql schema. E.g. `sqlite://`
+- **`schema`** _(str)_: The `.sql` file representing the DB schema.
+- **`on_fail`** *(str, Callable):* The policy to enact when a validator fails. If `str`, must be one of `reask`, `fix`, `filter`, `refrain`, `noop`, `exception` or `fix_reask`. Otherwise, must be a function that is called when the validator fails.
+
+</ul>
+
+<br>
+
+**`__call__(self, value, metadata={}) → ValidationOutcome`**
+
+<ul>
+
+Validates the given `value` using the rules defined in this validator, relying on the `metadata` provided to customize the validation process. This method is automatically invoked by `guard.parse(...)`, ensuring the validation logic is applied to the input data.
+
+Note:
+
+1. This method should not be called directly by the user. Instead, invoke `guard.parse(...)` where this method will be called internally for each associated Validator.
+2. When invoking `guard.parse(...)`, ensure to pass the appropriate `metadata` dictionary that includes keys and values required by this validator. If `guard` is associated with multiple validators, combine all necessary metadata into a single dictionary.
+
+**Parameters:**
+
+- **`value`** *(Any):* The input value to validate.
+- **`metadata`** *(dict):* A dictionary containing metadata required for validation. For this validator, no additional metadata keys are required.
+</ul>
