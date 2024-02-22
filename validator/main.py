@@ -22,7 +22,7 @@ class ValidSQL(Validator):
 
     | Property                      | Description                       |
     | ----------------------------- | --------------------------------- |
-    | Name for `format` attribute   | `valid-sql`                       |
+    | Name for `format` attribute   | `guardrails/valid_sql`            |
     | Supported data types          | `string`                          |
     | Programmatic fix              | None                              |
 
