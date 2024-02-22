@@ -4,7 +4,7 @@
 | --- | --- |
 | Date of development | Feb 15, 2024 |
 | Validator type | Format |
-| Blog |  |
+| Blog | - |
 | License | Apache 2 |
 | Input/Output | Output |
 
@@ -20,7 +20,7 @@ This validator checks if a string follows valid SQL code. In order to do this, i
 ## Installation
 
 ```bash
-$ guardrails hub install hub://guardrails/valid_sql
+guardrails hub install hub://guardrails/valid_sql
 ```
 
 ## Usage Examples
@@ -31,77 +31,22 @@ In this example, we validate a generated SQL code by providing it with a schema 
 
 ```python
 # Import Guard and Validator
-from guardrails.hub import ValidSQL
 from guardrails import Guard
-
-with open("schema.sql", "w") as f:
-    f.write("""
-CREATE TABLE IF NOT EXISTS employees (
-    id INT NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
-);
-"""
-    )
-
-# Initialize Validator
-val = ValidSQL(
-    schema_file="schema.sql",
-    conn="sqlite://",
-)
+from guardrails.hub import ValidSQL
 
 # Setup Guard
-guard = Guard.from_string(
-    validators=[val, ...],
-)
+guard = Guard().use(ValidSQL, on_fail="exception")
+response = guard.validate("SELECT * FROM EMPLOYEES;")  # Validator passes
 
-guard.parse("select name from employees;")  # Validator passes
-guard.parse("select name, fro employees")  # Validator fails
+try:
+    response = guard.validate("SELEKT ID FROM USERS;")  # Validator fails
+except Exception as e:
+    print(e)
 ```
-
-### Validating JSON output via Python
-
-In this example, we apply the validator to a string field of a JSON object.
-
-```python
-# Import Guard and Validator
-from pydantic import BaseModel
-from guardrails.hub import ValidSQL
-from guardrails import Guard
-
-with open("schema.sql", "w") as f:
-    f.write("""
-CREATE TABLE IF NOT EXISTS employees (
-    id INT NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
-);
-"""
-    )
-
-# Initialize Validator
-val = ValidSQL(
-    schema_file="schema.sql",
-    conn="sqlite://",
-)
-
-# Create Pydantic BaseModel
-class SQLCode(BaseModel):
-    code: str = Field(
-        description="SQL code for query", validators=[val]
-    )
-
-# Create a Guard to check for valid Pydantic output
-guard = Guard.from_pydantic(output_class=SQLCode)
-
-# Run LLM output generating JSON through guard
-guard.parse("""
-{
-    "code": "select name from employees;"
-}
-""")
+Output:
+```console
+Validation failed for field with errors:
 ```
-
 
 ## API Reference
 
@@ -120,7 +65,7 @@ Initializes a new instance of the Validator class.
 
 <br>
 
-**`__call__(self, value, metadata={}) → ValidationOutcome`**
+**`__call__(self, value, metadata={}) → ValidationResult`**
 
 <ul>
 
